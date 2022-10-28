@@ -1,0 +1,4 @@
+This is a Brave Rewards publisher verification file.
+
+Domain: samuelefacenda.github.io
+Token: eee6627e7fabca688335cc42a9e177412cc1d13acf573745d0ce583b28111722
