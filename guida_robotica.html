@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Guida robotica</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+	  <h1 id="piccola-guida-di-robotica">Piccola guida di robotica</h1>
+<blockquote>
+<p>Samuele Facenda</p>
+</blockquote>
+<p>Una piccolo (per quello che si potrebbe dire) documento con quello che io (Samuele Facenda) ho imparato e ho da dire sulla robotica all&#39;ITT Buonarroti. 
+Espone un paio di aspetti e soprattutto include link utili per capire come fare alcune cose, che vanno dal riconoscimento dei caratteri alla mappatura del labirinto o all&#39;allineamento del robot.</p>
+<p>Non sono un elettronico né un automatico, ma un informatico. Non farò riferimento al funzionamento dei sensori o dei motori, parlerò solo dell&#39;aspetto informatico (inteso come codice e gesitone).</p>
+<h2 id="1-gestione-del-robot">1 - Gestione del robot</h2>
+<p>Il robot ha motissimi componenti diversi, essi devono essere coordinati nelle loro azioni. Ci sono i sensori e i motori, collegati con il robò. 
+Il modo più semplice per interfacciarsi con i componenti è usando una scheda arduino, ci sono un sacco di librerie comode e codici boilerplate in internet.</p>
+<h3 id="1-1-arduino">1.1 Arduino</h3>
+<p>Arduino è praticamente c++, cambia però la struttura del progetto, che viene molto semplificata.</p>
+<h4 id="1-1-1-struttura-di-un-progetto-arduino">1.1.1 Struttura di un progetto arduino</h4>
+<p>La struttura <strong>deve</strong> essere così composta:</p>
+<p>directory root (si chiama come lo sketch principale):</p>
+<ul>
+<li>sketch principale (file.ino)</li>
+<li>codice aggiuntivo.h</li>
+<li>codice aggiuntivo.cpp</li>
+<li>codice aggiuntivo2.h</li>
+<li>codice aggiuntivo2.cpp</li>
+</ul>
+<p>In c++ si deve definire in un file le funzioni e le classi e queste vanno implementate in un altro file, rispettivamente i file .h (header) e .cpp. Arduino in automatico riconosce questa divisione e include le funzioni, classi e costanti così definite nello sketch principale (file .ino con funzioni setup e loop)</p>
+<h4 id="1-1-2-comunicazione-seriale">1.1.2 Comunicazione seriale</h4>
+<p>Per comunicare via seriale (un canale con input e output divisi e comodo da usare) con altri dispositivi da arduino si può usare la classe Serial che con i metodi println ad esempio invia una stringa con il carattere di a capo alla fine sulla porta principale, quella usb (quindi il computer di solito). </p>
+<p>Questa è comoda per il debug, mentre per le comunicazioni con altri dispositivi si possono usare le porte seriali ausiliari. Queste sono coppie di pin, segnati come RX e TX (transmit e recive), la prima è utilizzabile come quella principale con la classe Serial1 (e.g. Serial1.println). Dall&#39;altro capo ci deve essere collegato un dispositivo (arduino, raspberry o altra cosa che sia) che comunica in seriale.</p>
+<p>Se questi pin sono occupati o si necessità un setup diverso, qualunque pin può essere usato come rx/tx, con la libreria arduino <a href="https://docs.arduino.cc/learn/built-in-libraries/software-serial">Software Serial</a>. Al link si trovano le informazioni necessarie</p>
+<h3 id="1-2-raspberry">1.2 Raspberry</h3>
+<p>I raspberry pi sono single board computer economici (:no_mouth:) con dei pin gpio (<a href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHLwG7rR3G1PxzagBjpEEFUbROI1XL4yMHP7DI5ghN&amp;s">pinout</a>). 
+<a href="https://projects.raspberrypi.org/en/projects/physical-computing">Qui</a> ci sono delle informazioni sul loro utilizzo con python (se non si è pratici con python è comodo impararlo, è semplice, <a href="https://www.programiz.com/python-programming">qui</a> un corso base).</p>
+<h4 id="1-2-1-setup">1.2.1 Setup</h4>
+<p>Sul raspberry va installato linux (architettura ARM), raspbian è fatto apposta, comunque <a href="https://www.raspberrypi.com/documentation/computers/getting-started.html">qui</a> c&#39;è la guida introduttiva ufficiale. Io mi sono sempre connesso con ssh o vnc, quando usi <a href="https://www.raspberrypi.com/software/">raspberry pi image</a> per creare la schedina col sistema operativo puoi assegnargli una wifi a cui connettersi e un hostname per riconoscerlo. </p>
+<h4 id="1-2-2-comunicazione-seriale">1.2.2 Comunicazione seriale</h4>
+<p>Per comunicare in seriale con qualunque altro dispositivo con qualunque porta (le usb o i pin rx tx del raspberry) <a href="https://pyserial.readthedocs.io/en/latest/">pyserial</a> è perfetta, basta cercare qualche esempio per capire come funziona.</p>
+<h3 id="1-3-gestione-dei-processi">1.3 Gestione dei processi</h3>
+<p>Sul raspberry soprattutto è importante coordinare tutti i moduli perchè siano coesi (e.g. lettura sensori, esplorazione, movimenti). 
+Con python semplice o qualunque altro linguaggio si possono usare in thread (<a href="https://docs.python.org/3/library/threading.html">libreria threading ufficiale</a>), in python con le classi Thread, Lock (un mutex), Semaphore e Event(un flag booleano sincronizzato).</p>
+<h3 id="1-4-ros">1.4 ROS</h3>
+<p><a href="https://www.ros.org/">Robot OS</a> è un framework molto comodo per gestire tutti i processo e componenti di un pc con linux (raspberry), ti permette di definirli come nodi indipendenti e di lasciarlo ad occuparsi della loro gestione e comunicazione. 
+<a href="https://docs.ros.org/en/humble/index.html">Qui</a> c&#39;è la documentazione dell&#39;LTS al 2023, comsiglio di leggerla prima di cominciare ad usarlo, soprattutto i tutorial da beginner.</p>
+<h2 id="2-riconoscimento-delle-vittime">2 - Riconoscimento delle vittime</h2>
+<p>Il riconosciemento è molto complicato, consiglio principalmente di usare <a href="https://opencv.org/">opencv</a> per tutto ciò che ci sta intorno (cattura immagini, filtri alle immagini...).
+Va molto bene anche per il riconosciemento vero e proprio. <a href="https://pyimagesearch.com/">Qui</a> ci sono un po&#39; di corsi e tutorial per imparare a fare object detection e OCR (optical character recognition). Tutto questo è visione artificiale. </p>
+<h3 id="2-1-deep-learning">2.1 Deep learning</h3>
+<p>Usare delle reti neurali può essere una buona idea per catalogare le immagini, la cosa complicata è catturare tante immagini e catalogarle a mano per trainale i modelli. </p>
+<p>Per cominciare e capire un po&#39; di cosa si tratta:
+<a href="https://www.3blue1brown.com/topics/neural-networks">Questi</a> video sono i migliori esistenti per capire il tema, già solo con il primo si ha una visione più chiara. <a href="https://www.3blue1brown.com/lessons/convolutions">Questo</a> invece è un po&#39; più avanzato sul riconoscimento delle immagini con reti neurali, sempre di 3blue1brown (i suoi video sono fatti benissimo anche di altri temi, il suo canale youtube è molto famoso).</p>
+<p>Per la realizzazione vera e propria ci sono due framework molto famosi:</p>
+<ul>
+<li><a href="https://pytorch.org/">Pytorch</a> è di facebook ed è molto diffusa come libreria. <a href="https://pytorch.org/tutorials/beginner/basics/quickstart_tutorial.html">Qui</a> c&#39;è un tutorial veloce per le basi e il codice boilerplate.
+Comunque per fare questo tipo di sviluppo è molto comodo usare <a href="https://jupyter.org/">Jupyter notebook</a> invece di semplici script python, sono supportati in vscode e anche in Dataspell, un ide a pagamento (non se hai il <a href="https://education.github.com/pack">github student developer pack</a>) molto avanzato. Con il github student developer pack hai anche <a href="https://github.com/features/copilot">github copilot</a>, che è comodissimo.</li>
+<li><a href="https://keras.io/">Keras</a>, che è un frontend molto comodo per tensorflow (di google) e altre librerie per il deep learning. </li>
+</ul>
+<p>Altre librerie molto comode sono <a href="https://scikit-learn.org/stable/">sklearn</a> per machine learning è utilità varie, <a href="https://numpy.org/">numpy</a> e <a href="https://pandas.pydata.org/">pandas</a> per data analysis e utilizzo veloce di matrici e array in python.</p>
+<p>Comunque in <a href="https://github.com/WRO-2021/Visual2022">questa</a> repo ci sono i codice per l&#39;anno 2022-2023. Li ho scritti io, per contattarmi la mia mail è questa: samuele.facenda@gmail.com.</p>
+<h2 id="3-mappatura-e-esplorazione">3 - Mappatura e esplorazione</h2>
+<p>Qui servono le cose che impari alle olimpiadi di informatica, quindi strutture dai e algoritmi. 
+In generale, per salvare la mappa si può usare una matrice gigante (non ridimensionabile) o un <a href="https://it.wikipedia.org/wiki/Teoria_dei_grafi?useskin=vector">grafo</a>.</p>
+<p>Algoritmi, strutture dati astratte o concrete comode:</p>
+<ul>
+<li><a href="https://it.wikipedia.org/wiki/Algoritmo_di_Dijkstra">Algoritmo di dijkstra</a></li>
+<li><a href="https://it.wikipedia.org/wiki/Ricerca_in_ampiezza">BFS</a></li>
+<li><a href="https://it.wikipedia.org/wiki/Ricerca_in_profondit%C3%A0">DFS</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Linked_list">Linked list</a></li>
+<li><a href="https://www.geeksforgeeks.org/deque-in-python/">Python deque - linked list</a></li>
+<li><a href="https://en.cppreference.com/w/cpp/container/deque">C++ deque - linked list</a></li>
+<li><a href="https://www.w3schools.com/python/python_sets.asp">Python set</a></li>
+<li><a href="https://en.cppreference.com/w/cpp/container/set">C++ set</a></li>
+</ul>
+<h2 id="4-movimenti">4 - Movimenti</h2>
+<p>Per allineare il robot c&#39;è una tecnica comoda, avendo più sensori per lato. 
+Vai un po&#39; avanti e indietro, finché la media delle distanza dei sensori di sinistra non è uguale a quella di destra. Poi Ti allinei girando su te stesso facendo in modo che tutti i sensori laterali abbiano gli stessi valori.</p>
+<h2 id="5-note-finali">5 - Note finali</h2>
+<p>Scrivete codice pulito, che si capisca, senza duplicati. Con nomi parlanti, non importa se vengono lunghi. <a href="https://books.google.it/books/about/Clean_code_Guida_per_diventare_bravi_art.html?id=eVzfswEACAAJ&amp;source=kp_book_description&amp;redir_esc=y">Questo</a> è un buonissimo libro per capire come fare, del più famoso clean coder. Documentate tutto, anche in modo generale, ma che ci sia qualcosa, il minimo è lasciare commenti nei codici complicati per far capire l&#39;intento. </p>
+<blockquote>
+<p>Samuele Facenda, Trento 30/05/2023</p>
+</blockquote>
+<p><a href="https://github.com/WRO-2021/Visual2022/blob/main/piccola_guida.md">Codice sorg
+  </body>
+</html>
